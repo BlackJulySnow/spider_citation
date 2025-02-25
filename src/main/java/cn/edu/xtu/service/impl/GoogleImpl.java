@@ -1,25 +1,19 @@
-package cn.edu.xtu;
+package cn.edu.xtu.service.impl;
 
 import cn.edu.xtu.entity.GoogleArticle;
+import cn.edu.xtu.service.Spider;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.edge.EdgeDriver;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-public class SpiderGoogle {
-    private final WebDriver driver;
-    private final Scanner scanner;
-    private List<GoogleArticle> articles = new ArrayList<>();
-    public SpiderGoogle(){
-        scanner = new Scanner(System.in);
-        driver = new EdgeDriver();
+public class GoogleImpl extends Spider<GoogleArticle> {
+    public GoogleImpl() {
+        super();
     }
 
-    public List<GoogleArticle> search(String paperTitle) throws InterruptedException {
+
+    @Override
+    public List<GoogleArticle> search(String paperTitle) {
         // 访问 Google Scholar 页面
         driver.get("https://scholar.google.com");
         // 在搜索框中输入文章标题并搜索
@@ -44,24 +38,21 @@ public class SpiderGoogle {
         return articles;
     }
 
-    public void getPage() throws InterruptedException {
+    @Override
+    public void getPage() {
         // 获取所有引用文章的标题
         List<WebElement> citationTitles = driver.findElements(By.className("gs_rt"));
         // 输出所有标题
         for (WebElement title : citationTitles) {
-            try {
-                WebElement a = title.findElement(By.tagName("a"));
-                System.out.println(a.getText());
+            // 获取最后一个标签
+            List<WebElement> elements = title.findElements(By.xpath("./*"));
+            if (!elements.isEmpty()) {
+                WebElement last = elements.get(elements.size() - 1);
+                System.out.println(last.getText());
                 GoogleArticle googleArticle = new GoogleArticle();
-                googleArticle.setTitle(a.getText());
-                articles.add(googleArticle);
-            }catch (Exception e){
-                System.out.println(title.getText());
-                GoogleArticle googleArticle = new GoogleArticle();
-                googleArticle.setTitle(title.getText());
+                googleArticle.setTitle(last.getText());
                 articles.add(googleArticle);
             }
-
         }
 
         try {
@@ -77,13 +68,5 @@ public class SpiderGoogle {
         }
     }
 
-    public void authenticate(){
-        System.out.println("认证后，请在控制台输入任意字符以继续...");
-        scanner.nextLine();
-    }
 
-    public void close(){
-        driver.quit();
-        scanner.close();
-    }
 }

@@ -1,8 +1,10 @@
 package cn.edu.xtu.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class Article {
     private String title;
     private Integer citations;
