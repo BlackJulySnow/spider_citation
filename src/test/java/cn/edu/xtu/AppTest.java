@@ -3,7 +3,9 @@ package cn.edu.xtu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 
 /**
@@ -12,37 +14,13 @@ import org.openqa.selenium.edge.EdgeDriver;
 public class AppTest 
     extends TestCase
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
-
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
     public void testEdge(){
         System.setProperty("webdriver.edge.driver", "driver/msedgedriver.exe");
         WebDriver driver = new EdgeDriver();
-        driver.get("https://www.bing.com");
+        driver.get("https://scholar.google.com/");
+        WebElement text = driver.findElement(By.id("gs_hp_giants"));
+        System.out.println(text.getText());
         System.out.println(driver.getTitle());
         driver.quit();
     }
-
 }

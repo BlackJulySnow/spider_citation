@@ -6,13 +6,14 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class SpiderGoogle {
     private final WebDriver driver;
     private final Scanner scanner;
-    private List<GoogleArticle> articles;
+    private List<GoogleArticle> articles = new ArrayList<>();
     public SpiderGoogle(){
         scanner = new Scanner(System.in);
         driver = new EdgeDriver();
@@ -48,25 +49,31 @@ public class SpiderGoogle {
         List<WebElement> citationTitles = driver.findElements(By.className("gs_rt"));
         // 输出所有标题
         for (WebElement title : citationTitles) {
-            List<WebElement> a = title.findElements(By.tagName("a"));
-            if (a.isEmpty()){
-                GoogleArticle article = new GoogleArticle();
-                article.setTitle(title.getText());
-                articles.add(article);
-            }else {
-                System.out.println(a.get(0).getText());
+            try {
+                WebElement a = title.findElement(By.tagName("a"));
+                System.out.println(a.getText());
                 GoogleArticle googleArticle = new GoogleArticle();
-                googleArticle.setTitle(a.get(0).getText());
+                googleArticle.setTitle(a.getText());
+                articles.add(googleArticle);
+            }catch (Exception e){
+                System.out.println(title.getText());
+                GoogleArticle googleArticle = new GoogleArticle();
+                googleArticle.setTitle(title.getText());
                 articles.add(googleArticle);
             }
+
         }
 
-        WebElement nextPageLink = driver.findElement(By.partialLinkText("下一页"));
-        if (nextPageLink.isDisplayed()) {
-            nextPageLink.click();
-            // 休眠1秒，防止监测
-            Thread.sleep(1500);
-            getPage();
+        try {
+            WebElement nextPageLink = driver.findElement(By.partialLinkText("下一页"));
+            if (nextPageLink.isDisplayed()) {
+                nextPageLink.click();
+                // 休眠1秒，防止监测
+                Thread.sleep(1500);
+                getPage();
+            }
+        }catch (Exception e){
+            System.out.println("查找完毕");
         }
     }
 
