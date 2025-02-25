@@ -21,31 +21,23 @@ public class App_WOS {
             List<OutputArticle> outputArticles = new ArrayList<>();
 
             for (Article article : articles) {
-                Article foundArticle;
                 List<Article> wosArticles;
                 try {
-                    foundArticle= wosImpl.getArticle(article.getTitle());
-                    if (foundArticle == null) {
-                        System.out.println("未找到文章：" + article.getTitle());
-                        continue;
-                    }
                     wosArticles =  new ArrayList<>(wosImpl.search(article.getTitle()));
                 }catch (Exception e){
-                    e.printStackTrace();
+                    wosImpl.reset();
                     System.out.println(article.getTitle());
                     continue;
                 }
-                String title = article.getTitle();
                 OutputArticle outputArticle = new OutputArticle();
-                outputArticle.setTitle(title);
-                outputArticle.setAccession(foundArticle.getAccession());
+                outputArticle.setTitle(article.getTitle());
+                outputArticle.setAccession(wosImpl.getArticle().getAccession());
                 outputArticle.setGoogleArticles(wosArticles);
                 outputArticles.add(outputArticle);
                 wosImpl.clear();
+//                break;
             }
             excelFile.writeWOS(outputArticles);
-//
-//
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {

@@ -6,11 +6,16 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.edge.EdgeDriver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WOSImpl extends Spider {
     public WOSImpl(EdgeDriver driver) {
         super(driver);
+    }
+
+    public Article getArticle() {
+        return thisArticle;
     }
 
     @Override
@@ -24,11 +29,30 @@ public class WOSImpl extends Spider {
         element.sendKeys(paperTitle);
         driver.findElement(By.xpath("//*[@id=\"snSearchType\"]/div[4]/button[2]")).click();
         Thread.sleep(2000);
+        //获取标题和WOS号
+        List<WebElement> elements = driver.findElements(By.cssSelector(".title.title-link.font-size-18.ng-star-inserted"));
+        Article article = new Article();
+        String foundTitle = elements.get(0).getText();
+        String href = elements.get(0).getDomAttribute("href");
+        String foundAccession = href.substring(href.lastIndexOf("/") + 1);
+        article.setTitle(foundTitle);
+        article.setAccession(foundAccession);
+        thisArticle = article;
+
+        if (!foundTitle.equalsIgnoreCase(paperTitle)) {
+            System.out.println("没有找到该文章:" + paperTitle);
+            reset();
+            return articles;
+        }
+
+//        authenticate();
+        Thread.sleep(2000);
         driver.findElement(By.xpath("/html/body/app-wos/main/div/div/div[2]/div/div/div[2]/app-input-route/app-base-summary-component/div/div[2]/app-records-list/app-record[1]/div/div/div[4]/div/div[1]/div[1]/a")).click();
         Thread.sleep(2000);
+        authenticate();
         getPage();
 //        authenticate();
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         System.out.println("共找到" + articles.size() + "篇文章。");
         return articles;
     }
@@ -82,8 +106,8 @@ public class WOSImpl extends Spider {
 
     public Article getArticle(String title) throws InterruptedException {
         driver.get("https://webofscience.clarivate.cn/wos/alldb/summary/a34d5d50-a912-4d5d-9606-794e159fde81-014cb5cebb/relevance/1");
-        authenticate();
         Thread.sleep(2000);
+        authenticate();
         driver.findElement(By.xpath("/html/body/app-wos/main/div/div/div[2]/div/div/div[2]/app-input-route/app-base-summary-component/app-search-friendly-display/div[1]/app-general-search-friendly-display/app-query-modifier/div[1]/div[1]/div/button[1]")).click();
         WebElement element = driver.findElement(By.xpath("//*[@id=\"search-option\"]"));
         element.clear();
@@ -103,5 +127,9 @@ public class WOSImpl extends Spider {
             System.out.println("没有找到该文章。");
             return null;
         }
+    }
+
+    public void reset() {
+        authenticated = false;
     }
 }
