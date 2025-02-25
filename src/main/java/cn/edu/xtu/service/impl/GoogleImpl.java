@@ -1,19 +1,21 @@
 package cn.edu.xtu.service.impl;
 
-import cn.edu.xtu.entity.GoogleArticle;
+import cn.edu.xtu.entity.Article;
 import cn.edu.xtu.service.Spider;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.edge.EdgeDriver;
+
 import java.util.List;
 
-public class GoogleImpl extends Spider<GoogleArticle> {
-    public GoogleImpl() {
-        super();
+public class GoogleImpl extends Spider{
+    public GoogleImpl(EdgeDriver driver) {
+        super(driver);
     }
 
 
     @Override
-    public List<GoogleArticle> search(String paperTitle) {
+    public List<Article> search(String paperTitle) {
         // 访问 Google Scholar 页面
         driver.get("https://scholar.google.com");
         // 在搜索框中输入文章标题并搜索
@@ -32,9 +34,7 @@ public class GoogleImpl extends Spider<GoogleArticle> {
 
         getPage();
 
-        for (GoogleArticle article : articles) {
-            System.out.println(article.getTitle());
-        }
+        System.out.println("共找到" + articles.size() + "篇文章。");
         return articles;
     }
 
@@ -48,8 +48,8 @@ public class GoogleImpl extends Spider<GoogleArticle> {
             List<WebElement> elements = title.findElements(By.xpath("./*"));
             if (!elements.isEmpty()) {
                 WebElement last = elements.get(elements.size() - 1);
-                System.out.println(last.getText());
-                GoogleArticle googleArticle = new GoogleArticle();
+//                System.out.println(last.getText());
+                Article googleArticle = new Article();
                 googleArticle.setTitle(last.getText());
                 articles.add(googleArticle);
             }
@@ -59,6 +59,7 @@ public class GoogleImpl extends Spider<GoogleArticle> {
             WebElement nextPageLink = driver.findElement(By.partialLinkText("下一页"));
             if (nextPageLink.isDisplayed()) {
                 nextPageLink.click();
+                authenticate();
                 // 休眠1秒，防止监测
                 Thread.sleep(1500);
                 getPage();
